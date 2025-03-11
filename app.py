@@ -45,7 +45,6 @@ def main():
         # Rows correspond to (p,q,r) from row i and
         # columns correspond to (l,m,n) from row j
         G = np.empty((num_points, num_points), dtype=np.complex128)
-
         for i in range(num_points):
             for j in range(num_points):
                 exponent = (2.0 * np.pi / denominator) * (
@@ -53,8 +52,16 @@ def main():
                 )
                 G[i, j] = np.cos(exponent) - 1j * np.sin(exponent)
 
-        # Compute gcc = complex conjugate of G, then take transpose
-        Gcc_T = np.conjugate(G).T
+        # Compute gcc = complex conjugate of G, then take its transpose if needed later.
+        gcc = np.conjugate(G)
+        gcc_T = gcc.T
+
+        # Display the matrices G and gcc
+        st.subheader("Matrix G")
+        st.write(pd.DataFrame(G))
+        
+        st.subheader("Matrix gcc (Complex Conjugate of G)")
+        st.write(pd.DataFrame(gcc))
 
         # Helper function to compute the pressure vector
         def compute_pressure(V_diag_vals, vel_col_vals, label):
@@ -63,8 +70,8 @@ def main():
             V_diag = np.diag(V_diag_vals)
             # Ensure the velocity vector is in column format
             vel_vector = vel_col_vals.reshape((num_points, 1))
-            # Calculate the pressure: p = G * V_diag * Gcc_T * vel_vector
-            p_result = G @ V_diag @ Gcc_T @ vel_vector
+            # Calculate the pressure: p = G * V_diag * gcc_T * vel_vector
+            p_result = G @ V_diag @ gcc_T @ vel_vector
 
             p_real = np.real(p_result).flatten()
             p_imag = np.imag(p_result).flatten()
@@ -79,7 +86,6 @@ def main():
                 f"Phase p{label}": p_phase
             })
             st.line_chart(phase_df.set_index("Index"))
-
             return p_real, p_imag
 
         # Compute pressure vectors for x, y, and z
