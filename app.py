@@ -71,7 +71,7 @@ def main():
             # Ensure the velocity vector is in column format
             vel_vector = vel_col_vals.reshape((num_points, 1))
             # Calculate the pressure: p = G * V_diag * gcc_T * vel_vector
-            p_result = G @ V_diag @ gcc_T @ vel_vector
+            p_result = G @ V_diag @ gcc_T
 
             p_real = np.real(p_result).flatten()
             p_imag = np.imag(p_result).flatten()
