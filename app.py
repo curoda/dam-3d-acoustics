@@ -52,7 +52,7 @@ def main():
                 )
                 G[i, j] = np.cos(exponent) - 1j * np.sin(exponent)
 
-        # Compute gcc = complex conjugate of G, then take its transpose if needed later.
+        # Compute gcc = complex conjugate of G, then take its transpose for multiplication later.
         gcc = np.conjugate(G)
         gcc_T = gcc.T
 
@@ -63,15 +63,20 @@ def main():
         st.subheader("Matrix gcc (Complex Conjugate of G)")
         st.write(pd.DataFrame(gcc))
 
-        # Helper function to compute the pressure vector
+        # Helper function to compute the pressure vector and display intermediate matrix
         def compute_pressure(V_diag_vals, vel_col_vals, label):
-            """Compute the pressure vector for the given axis (x, y, or z)."""
+            """Compute the pressure vector for the given axis (x, y, or z) and display the intermediate matrix."""
             # Create the diagonal matrix from V values
             V_diag = np.diag(V_diag_vals)
+            # Compute intermediate matrix: P = G @ V_diag @ gcc_T
+            intermediate_matrix = G @ V_diag @ gcc_T
+            st.subheader(f"Intermediate Matrix for p{label} (G @ V_diag @ gcc_T)")
+            st.write(pd.DataFrame(intermediate_matrix))
+            
             # Ensure the velocity vector is in column format
             vel_vector = vel_col_vals.reshape((num_points, 1))
-            # Calculate the pressure: p = G * V_diag * gcc_T * vel_vector
-            p_result = G @ V_diag @ gcc_T
+            # Final pressure vector: p = (G @ V_diag @ gcc_T) @ vel_vector
+            p_result = intermediate_matrix @ vel_vector
 
             p_real = np.real(p_result).flatten()
             p_imag = np.imag(p_result).flatten()
@@ -88,7 +93,7 @@ def main():
             st.line_chart(phase_df.set_index("Index"))
             return p_real, p_imag
 
-        # Compute pressure vectors for x, y, and z
+        # Compute pressure vectors for x, y, and z axes
         px_real, px_imag = compute_pressure(vx_vals, velx_vals, "x")
         py_real, py_imag = compute_pressure(vy_vals, vely_vals, "y")
         pz_real, pz_imag = compute_pressure(vz_vals, velz_vals, "z")
