@@ -52,7 +52,7 @@ def main():
                 )
                 G[i, j] = np.cos(exponent) - 1j * np.sin(exponent)
 
-        # Compute gcc = complex conjugate of G, and then its transpose
+        # Compute gcc = complex conjugate of G, and then its transpose for later use.
         gcc = np.conjugate(G)
         gcc_T = gcc.T
 
@@ -70,11 +70,16 @@ def main():
         st.subheader("Matrix Vx (Diagonal Matrix from Vx values)")
         Vx_matrix = np.diag(vx_vals)
         st.write(pd.DataFrame(Vx_matrix))
+        
+        # Compute and display the intermediate product [g] * [Vx]
+        st.subheader("Intermediate Matrix: [g] * [Vx]")
+        G_Vx = G @ Vx_matrix
+        st.write(pd.DataFrame(G_Vx))
 
         # Helper function to compute the pressure vector and display intermediate matrix
         def compute_pressure(V_diag_vals, vel_col_vals, label):
             """Compute the pressure vector for the given axis (x, y, or z) and display the intermediate matrix."""
-            # Create the diagonal matrix from V values
+            # Create the diagonal matrix from V values (specific to this axis)
             V_diag = np.diag(V_diag_vals)
             # Compute intermediate matrix: P = G @ V_diag @ gcc_T
             intermediate_matrix = G @ V_diag @ gcc_T
