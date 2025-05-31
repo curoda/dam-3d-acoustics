@@ -18,6 +18,9 @@ def main():
     if uploaded_file is not None:
         # Read the spreadsheet into a DataFrame
         df = pd.read_excel(uploaded_file)
+
+        # --- Strip whitespace from all column names so " Vz " → "Vz", etc. ---
+        df.columns = df.columns.str.strip()
         
         # Determine how many rows (N) we have
         num_points = len(df)
